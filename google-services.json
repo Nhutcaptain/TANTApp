@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "225301072332",
+    "project_id": "quizapp-442a6",
+    "storage_bucket": "quizapp-442a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225301072332:android:df7d5185ea348cb614f569",
+        "android_client_info": {
+          "package_name": "com.anonymous.TeacherApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "225301072332-mu01mgmmufi01hpiti31rk55vr5t4q79.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp2Nuj3kUFLEA1stLLr12dxNsIIQUn7YY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "225301072332-mu01mgmmufi01hpiti31rk55vr5t4q79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

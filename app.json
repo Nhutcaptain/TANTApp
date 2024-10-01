@@ -17,12 +17,13 @@
         {
           "photosPermission": "custom photos permission",
           "cameraPermission": "Allow $(PRODUCT_NAME) to open the camera",
-  
           "//": "Disables the microphone permission",
           "microphonePermission": false
         }
       ],
-      ["@react-native-google-signin/google-signin"]
+      [
+        "@react-native-google-signin/google-signin"
+      ]
     ],
     "userInterfaceStyle": "light",
     "splash": {
@@ -32,15 +33,16 @@
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
-      "supportsTablet": true
-      
+      "supportsTablet": true,
+      "bundleIdentifier": "com.myapp.TeacherApp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.anonymous.TeacherApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
