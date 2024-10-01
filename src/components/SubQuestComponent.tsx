@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView, Dimensions, TextInput, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import TextComponent from './TextComponent';
 import globalStyle from '../styles/globalStyle';
 import TitleConponent from './TitleConponent';
@@ -12,6 +12,7 @@ import InputComponent from './InputComponent';
 import ImagePickerComponent from './ImagePickerComponent';
 import ButtonComponent from './ButtonComponent';
 import QuestionCardComponent from './QuestionCardComponent';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const initSubLevel: SubLevel = {
     subname: '',
@@ -36,7 +37,14 @@ const SubQuestComponent = (props: Props) => {
     const [qnumberString, setqnumberString] = useState('');
     const [numberOfQuest, setnumberOfQuest] = useState(SubTask ? SubTask.questions.length :  0);
     const [errorText, seterrorText] = useState(false);
-
+    const resetSubLevel: SubLevel = {
+        subname: '',
+        subtitle: '',
+        subdescription: '',
+        subbackgroundImage: '',
+        season: 0,
+        questions: [],
+    }
     const scrollViewRef = useRef<ScrollView>(null);
 
     useEffect(() => {
@@ -81,6 +89,7 @@ const SubQuestComponent = (props: Props) => {
         if(subtaskDetail.subtitle) {
             if(subtaskDetail.subbackgroundImage) {
                 saveSubTask(subtaskDetail);
+                setsubtaskDetail(resetSubLevel);
                 closeModal();
             } else {
                 alert('Hãy thêm ảnh nền !');
@@ -102,29 +111,43 @@ const SubQuestComponent = (props: Props) => {
             handleChangeValue('questions', question);
         }
     }
-
+    //Lướt màn hình lên trên
     const scrollToPosition = (value: number, index: number | undefined) => {
                 scrollViewRef.current?.scrollTo({ y: value, animated: true }); // Cuộn lên 100 điểm từ đầu ScrollView
-           
-       
       };
-
+    
+    //Xóa question
+    const handleDeleteQuestion = useCallback((index: number) => {
+        const updatedQuestions = [...subtaskDetail.questions];
+        updatedQuestions.splice(index, 1);
+        setnumberOfQuest(prevNumber => prevNumber - 1);
+        const updateQuestionIds = updatedQuestions.map(item => {
+            if(item.id > index + 1) {
+                return {...item, id: item.id - 1};
+            }
+            return item;
+        })
+        setsubtaskDetail(prevState => ({
+            ...prevState,
+            questions: updateQuestionIds,
+        }));
+    },[subtaskDetail]);
     return (
         <View style={[globalStyle.container]}>
             <ScrollView showsHorizontalScrollIndicator={false} ref={scrollViewRef}>
                 <TouchableOpacity onPress={handleSaveSubtask}>
                     <ArrowLeft size={30} color='white'></ArrowLeft>
                 </TouchableOpacity>
-                <TitleConponent text='Thêm các vùng đất'></TitleConponent>
+                <TitleConponent text='Thêm các tiểu mục'></TitleConponent>
                 <View style={{marginTop: 20}}>
                     {/* Đặt tên và season */}
                     <RowComponent>
                         <View style={{flex: 1}}>
-                        <TitleConponent text='Tên vùng đất' styles={{marginBottom: 10}}></TitleConponent>
+                        <TitleConponent text='Tên tiểu mục' styles={{marginBottom: 10}}></TitleConponent>
                             <InputComponent 
                                 onChange={(val) => {handleChangeValue('subtitle', val)}}
                                 value={subtaskDetail.subtitle}
-                                placeHolder='Tên vùng đất'
+                                placeHolder='Nhập tên tiểu mục'
                                 allowClear
                             ></InputComponent>
                         </View>
@@ -141,6 +164,11 @@ const SubQuestComponent = (props: Props) => {
                     {/* Thêm câu hỏi */}
                     
                     <TitleConponent text='Thêm Số lượng câu hỏi' styles={{marginTop: 15}}></TitleConponent>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'position' : 'height'}
+                        style={{flex: 1}}
+                        keyboardVerticalOffset={58}
+                    >
                     <View style={{position: 'relative', paddingBottom: 10}}>
                         <RowComponent styles={{alignItems: 'center', marginTop: 12}}>
                             <View style={{flex: 1}}>
@@ -162,20 +190,32 @@ const SubQuestComponent = (props: Props) => {
                                     <TextComponent text='Hãy nhập số câu trước !' color='coral' flex={0}></TextComponent>
                                 </RowComponent>}
                     </View>
+                    </KeyboardAvoidingView>
                     <View>
                         {Array.from({length: numberOfQuest}, (_, index) => (
                             <QuestionCardComponent key={index} index={index+1} saveQuestion={handleSaveQuestion} questions={subtaskDetail.questions ? subtaskDetail.questions[index] : null} isSaved={subtaskDetail.questions ? true : false} autoScroll={(val, i) => scrollToPosition(val, i)}
+                            deleteQuestion={() => handleDeleteQuestion(index)}
                             ></QuestionCardComponent>
                         ))}
                     </View>
-                    <ButtonComponent text='Save' onPress={() => handleSaveSubtask()}></ButtonComponent>
-                    
+                    <ButtonComponent text='Lưu' onPress={() => handleSaveSubtask()}></ButtonComponent>
                 </View>
             </ScrollView>
         </View>
     );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    inputContainer: {
+        marginBottom: 16,
+      },
+      textInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        padding: 10,
+        color: 'black',
+      },
+})
 
 export default SubQuestComponent;

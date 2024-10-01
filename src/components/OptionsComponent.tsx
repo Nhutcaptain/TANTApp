@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import InputComponent from './InputComponent';
 import { Option } from '../dataModel/DataModel';
@@ -23,10 +23,11 @@ interface Props {
 
 }
 
-const OptionsComponent = (props: Props) => { 
-    const {saveOptions, currentOptions, resetOption} = props;
+const OptionsComponent = forwardRef((props: Props, ref) => { 
+    const {saveOptions, currentOptions, resetOption, isEditing} = props;
     const [options, setoptions] = useState<Option[]>(initOptions);
     const [selectedOption, setselectedOption] = useState<number | null>(null);
+    const [errorTextIndex, seterrorTextIndex] = useState<number[]>([]);
     const initOptions2: Option[] = [
         { id: 1, text: '', isCorrect: false },
         { id: 2, text: '', isCorrect: false },
@@ -37,12 +38,29 @@ const OptionsComponent = (props: Props) => {
         const item: any = [...options];
         item[index][`${id}`] = value;
         setoptions(item);
+        seterrorTextIndex(prevState => {
+            const newState = [...prevState];
+            newState[index] = -1;
+            return newState;
+
+        })
     }
+    useImperativeHandle(ref, () => ({
+        childFunction() {
+            handleSaveOPtion();
+        },
+      }));
 
     useEffect(() => {
         setoptions(initOptions2);
         console.log('Hello');
     },[resetOption]);
+
+    useEffect(() => {
+        if(isEditing && currentOptions) {
+            setoptions(currentOptions);
+        }
+    },[isEditing])
 
     const handleSelected = (index: number) => {
         setselectedOption(index);
@@ -54,8 +72,21 @@ const OptionsComponent = (props: Props) => {
     }
 
     const handleSaveOPtion = () => {
+        let yes = true;
+        options.map((_,index) => {
+            if(options[index].text == ''){
+                seterrorTextIndex(prevState => {
+                    const newState = [...prevState];  // Sao chép mảng cũ
+                    newState[index] = index;  // Cập nhật giá trị tại vị trí index
+                    return newState;  // Trả về mảng mới
+                  });
+                yes = false;
+            }
+        })
+       if(yes) {
         saveOptions(options);
         setoptions(initOptions);
+       }
     }
 
     return (
@@ -69,14 +100,14 @@ const OptionsComponent = (props: Props) => {
                             </View>
                             <View style={{flex: 1}}>
                                 <InputComponent 
-                                    value={currentOptions !== undefined ? currentOptions[index].text : option.text} 
+                                    value={(currentOptions !== undefined && !isEditing) ? currentOptions[index].text : option.text} 
                                     onChange={(val) => handleChangeValue('text',index, val)}
-                                   
+                                   isEditable={currentOptions ? isEditing : true}
                                 ></InputComponent>
                             </View>
                             <RadioButton
                                     value={`option${index}`}
-                                    status={currentOptions && currentOptions[index].isCorrect ? 'checked' : (selectedOption === index ? 'checked' : 'unchecked')}
+                                    status={(currentOptions && currentOptions[index].isCorrect && !isEditing) ? 'checked' : (selectedOption === index ? 'checked' : 'unchecked')}
                                     onPress={() => {
                                         handleSelected(index);
                                     }}
@@ -84,15 +115,13 @@ const OptionsComponent = (props: Props) => {
                                     color='green'
                                 />
                         </RowComponent>
+                        {(index == errorTextIndex[index]) && <TextComponent text='Hãy nhập câu hỏi !' color='coral' flex={1}></TextComponent>}
                     </View>
                 ))}
             </View>
-            <View style={{marginTop: 10}}>
-                <ButtonComponent text='Save' onPress={() => handleSaveOPtion()}></ButtonComponent>
-            </View>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({})
 

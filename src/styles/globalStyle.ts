@@ -48,6 +48,11 @@ const globalStyle = StyleSheet.create({
         width: '50%', 
         marginTop: 10,
     },
+    backgroundStyle: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute'
+    }
 })
 
 export default globalStyle

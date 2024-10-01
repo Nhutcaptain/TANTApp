@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, LayoutAnimation, ScrollView } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity, LayoutAnimation, ScrollView, TouchableHighlight, TextInput, KeyboardAvoidingView, Platform  } from 'react-native';
 import globalStyle from '../styles/globalStyle';
 import TitleConponent from './TitleConponent';
 import TextComponent from './TextComponent';
 import RowComponent from './RowComponent';
 import  Icon  from 'react-native-vector-icons/AntDesign';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import InputComponent from './InputComponent';
 import { Option, Question } from '../dataModel/DataModel';
 import ButtonComponent from './ButtonComponent';
 import SpaceComponent from './SpaceComponent';
 import OptionsComponent from './OptionsComponent';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 interface itemData {
     label?: string;
@@ -32,10 +34,11 @@ interface Props {
     questions: Question | null;
     isSaved: boolean; 
     autoScroll: (value: number, i: number | undefined) => void;
+    deleteQuestion: () => void
 }
 
 const QuestionCardComponent = (props: Props) => {
-    const {index, saveQuestion, questions, isSaved, autoScroll} = props;
+    const {index, saveQuestion, questions, isSaved, autoScroll, deleteQuestion} = props;
     const [showOption, setshowOption] = useState(false);
     const [typeQuest, settypeQuest] = useState([
         {
@@ -50,11 +53,30 @@ const QuestionCardComponent = (props: Props) => {
     const [onSaved, setonSaved] = useState(isSaved);
     const [saveOption, setsaveOption] = useState(false);
     const [resetOption, setresetOption] = useState(false);
+    const [isEditing, setisEditing] = useState(false);
+    const [hasRunUseEffect, sethasRunUseEffect] = useState(false);
+    
+    // Truyền ref gọi hàm saveOption ở Component Option
+    const childRef = useRef<{ childFunction: () => void }>(null);
 
+    const callChildFunction = () => {
+        if (childRef.current) {
+          childRef.current.childFunction();
+        }
+      };
     const handleTypeSelected = (item: any) => {
         settypeQuestSelected(item);
         setshowOption(false);
     }
+
+    useEffect(() => {
+        if(isEditing && !hasRunUseEffect) {
+            if(questions){
+                setquestData(questions);
+            }
+            sethasRunUseEffect(true);
+        }
+    },[isEditing, hasRunUseEffect])
 
     useEffect(() => {
         questData.type = typeQuestSelected?.label ?? '';
@@ -70,20 +92,29 @@ const QuestionCardComponent = (props: Props) => {
     },[saveOption])
 
     const handleChangeValue = (id: string, value: any) => {
+
         const item: any = {...questData};
         item[`${id}`] = value;
         setquestData(item);
     }
 
+    
+
     const handleSaveQuestion = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setonSaved(true) 
-        saveQuestion(questData);
+        if( questions && isEditing) {
+            saveQuestion(questData);
+        } else if(questions) {
+            
+        } else {
+            saveQuestion(questData);
+        }
     }
 
     return (
-            <View style={[globalStyle.questionCard]}>
-           {!onSaved ? <View>
+        <View style={[globalStyle.questionCard]}>
+          {!onSaved ? <View>
             <RowComponent>
                 <TitleConponent text={`Câu ${index}`}></TitleConponent>
                 <SpaceComponent width={50}></SpaceComponent>
@@ -96,6 +127,11 @@ const QuestionCardComponent = (props: Props) => {
                     >
                      <Icon name='up' color={'white'} size={20}></Icon>
                 </TouchableOpacity>
+                {!isEditing && (
+                    <TouchableOpacity onPress={() => setisEditing(true)}>
+                        <FontAwesome5 name='edit' size={20} color={'white'}></FontAwesome5>
+                    </TouchableOpacity>) 
+                }
             </RowComponent>
             <TouchableOpacity style={[globalStyle.selectQuestionType, {position: 'relative'}]}
                     onPress={() => {
@@ -130,27 +166,31 @@ const QuestionCardComponent = (props: Props) => {
                     <View style={{marginTop: 10}}>
                         <InputComponent 
                             onChange={(val) => handleChangeValue('question',val)}
-                            value={questions?.question ? questions.question : questData.question} 
-                            allowClear
+                            value={(questions?.question && !isEditing) ? questions.question : questData.question} 
+                            allowClear={isEditing ? true : false}
                             numberOfLine={5}
                             placeHolder='Nhập câu hỏi tại đây'
                             multible
+                            isEditable={questions ? isEditing : true}
                         ></InputComponent>
                         <TitleConponent text='Trả lời'></TitleConponent>
-                        <InputComponent 
+                        {/* <InputComponent 
                             onChange={(val) => handleChangeValue('rightEssayAnswer', val)}
-                            value={questions?.rightEssayAnswer ? questions.rightEssayAnswer : questData.rightEssayAnswer ? questData.rightEssayAnswer : ''}
+                            value={(questions?.rightEssayAnswer && !isEditing) ? questions.rightEssayAnswer : questData.rightEssayAnswer ? questData.rightEssayAnswer : ''}
                             placeHolder='Nhập câu trả lời ở đây'
-                            allowClear
-                        ></InputComponent>
+                            allowClear={isEditing ? true : false}
+                            isEditable={questions ? isEditing : true}
+                        ></InputComponent> */}
+                        
                         <TitleConponent text='Giải thích'></TitleConponent>
                         <InputComponent 
                             onChange={(val) => handleChangeValue('expand',val)} 
-                            value={questions?.expand ? questions.expand : questData?.expand ?? ''}
-                            allowClear
+                            value={(questions?.expand && !isEditing) ? questions.expand : questData?.expand ?? ''}
+                            allowClear={isEditing ? true : false}
                             multible
                             numberOfLine={3}
                             placeHolder='Nhập lời giải thích của câu hỏi'
+                            isEditable={questions ? isEditing : true}
                             ></InputComponent>
                     </View> : (questions?.type == 'Trắc nghiệm' || typeQuestSelected?.label == 'Trắc nghiệm') ? 
                     (<View>
@@ -162,34 +202,71 @@ const QuestionCardComponent = (props: Props) => {
                             numberOfLine={3}
                             placeHolder='Nhập câu hỏi tại đây'
                             multible
+                            isEditable={questions ? isEditing : true}
                         ></InputComponent>
+                        <TitleConponent text='Giải thích'></TitleConponent>
+                        <InputComponent 
+                            onChange={(val) => handleChangeValue('expand',val)} 
+                            value={questions?.expand ? questions.expand : questData?.expand ?? ''}
+                            allowClear
+                            multible
+                            numberOfLine={3}
+                            placeHolder='Nhập lời giải thích của câu hỏi'
+                            isEditable={questions ? isEditing : true}
+                            ></InputComponent>
                         {/* Option Component */}
                         <OptionsComponent 
                             saveOptions={(val) => {
                                 handleChangeValue('options', val);
                                 setsaveOption(true); // Kích hoạt lưu câu hỏi sau khi options thay đổi
                             }} 
-                            currentOptions={questions?.options ?? undefined}
+                            currentOptions={(questions) ? questions?.options : undefined}
                             resetOption
+                            isEditing={isEditing}
+                            ref={childRef}
                         />
+                        
                     </View>) : 
                     <View></View>
                 }
             </View>
             {(questions?.type == 'Tự luận' || typeQuestSelected?.label == 'Tự luận') && 
-            <View style={{marginTop: 10}}>
-                <ButtonComponent text='Save' onPress={() => handleSaveQuestion()}></ButtonComponent>
+            <View style={{marginTop: 10, justifyContent: 'center', alignItems: 'center'}}>
+                {(!questions || isEditing) && <ButtonComponent 
+                    text='Lưu' 
+                    onPress={() => handleSaveQuestion()}
+                    prefix={<FontAwesome5 name='save' size={15} color={'white'}></FontAwesome5>}
+                    ></ButtonComponent>}
             </View> }
+            {(questions?.type == 'Trắc nghiệm' || typeQuestSelected?.label == 'Trắc nghiệm') && 
+            <View style={{marginTop: 10, justifyContent: 'center', alignItems: 'center'}}>
+                {(!questions || isEditing) && <ButtonComponent 
+                    text='Lưu' 
+                    onPress={() => callChildFunction()}
+                    prefix={<FontAwesome5 name='save' size={15} color={'white'}></FontAwesome5>}
+                    ></ButtonComponent>}
+            </View> 
+            }
+
             
             </View> : 
             <View>
                 <TouchableOpacity onPress={() => {
                     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                     setonSaved(false);
-                    autoScroll(((questions && index >=2) ? 1800 : questions ? 600 : 200), index);
+                    autoScroll(((questions && index >=2) ? 1800 : questions ? 600 : 1000), index);
                     
                    }}>
-                    <TitleConponent text={questions?.question ? `Câu ${index}: ${questions.question}` : `Câu ${index}: ${questData.question}`}></TitleConponent>
+                    <RowComponent styles={{justifyContent: 'center', alignItems: 'center'}}>
+                         <TitleConponent text={(questions?.question && !isEditing) ? `Câu ${index}: ${questions.question}` : `Câu ${index}: ${questData.question}`} styles={{flex: 1}}></TitleConponent>
+                         <TouchableHighlight 
+                            style={styles.button} 
+                            underlayColor={'#32323258'}
+                            onPress={() => deleteQuestion()}
+                        >
+                            <FontAwesome5 name='trash-alt' size={20} color={'white'}></FontAwesome5>       
+                         </TouchableHighlight>
+                    </RowComponent>
                 </TouchableOpacity>
             </View>
             }
@@ -197,6 +274,24 @@ const QuestionCardComponent = (props: Props) => {
     );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    button: {
+        width: 60,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+    },
+    inputContainer: {
+        marginBottom: 16,
+      },
+      textInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        padding: 10,
+        color: 'black',
+      },
+})
 
 export default QuestionCardComponent;

@@ -16,7 +16,7 @@ import SubQuestComponent from '../components/SubQuestComponent';
 import ButtonComponent from '../components/ButtonComponent';
 import SubtaskCardComponent from '../components/SubtaskCardComponent';
 import { app, storage, db } from '../firebase/firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, getStorage, deleteObject } from "firebase/storage";
 import { setDoc, doc } from "firebase/firestore";
 
 const initLevel: Level = {
@@ -38,7 +38,7 @@ const AddNewTaskScreen = () => {
     const [isEditing, setisEditing] = useState(false);
     const [selectedSubTask, setselectedSubTask] = useState<SubLevel | undefined>(undefined);
     const [isLoading, setisLoading] = useState(false);
-
+    //Thêm và tải nhạc lên firebase
     const pickAudio = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
@@ -58,6 +58,14 @@ const AddNewTaskScreen = () => {
                 const blob = await response.blob();
 
                 const fileRef = ref(storage, `audios/${result.assets[0].name}`);
+                if(fileName) {
+                    try{
+                        const filePath = ref(storage,`audios/${fileName}`);
+                        await deleteObject(filePath);
+                    }catch(err) {
+                        console.error(err);
+                    }
+                }
                 const snapshot = await uploadBytes(fileRef,blob);
                 if(snapshot) {
                     setisLoading(false);
@@ -71,7 +79,7 @@ const AddNewTaskScreen = () => {
             console.error('Error picking document:', error);
         }
     }
-
+    //Chạy nhạc
     const playSound = async (uri: string) => {
         try{
             const {sound} = await Audio.Sound.createAsync({uri});
@@ -95,7 +103,7 @@ const AddNewTaskScreen = () => {
             }
         }
     }
-
+    //Thay đổi giá trị
     const handleChangeValue = (id: string, value: any) => {
         const item: any = {...levelDetail};
         if(id == 'subLevel') {
@@ -105,11 +113,11 @@ const AddNewTaskScreen = () => {
         }
         setlevelDetail(item);
     }
-
+    //Chọn hình ảnh
     const handleImagePicked = (imageUri: string) => {
         handleChangeValue('backgroundImage', imageUri);
       };
-
+      //Lưu miền khám phá
       const handleSaveSubtask = (subtask: SubLevel) => {
         const index = levelDetail.subLevel.findIndex(s => s.season === subtask.season);
         if(index !== -1) {
@@ -126,23 +134,29 @@ const AddNewTaskScreen = () => {
         }
         
       }
-
+      // Xóa vùng đất
       const handleDeleteSubTask = useCallback((index: number) => {
         console.log("Handle Delete");
         const updatedSubtask = [...levelDetail.subLevel];
         updatedSubtask.splice(index, 1);
+        const updateSubTaskId = updatedSubtask.map((item, idx) => ({
+            ...item,
+            id: idx + 1,
+            season: idx + 1,
+        }));
+        console.log(updateSubTaskId);
         setlevelDetail(prevState => ({
           ...prevState,
-          subLevel: updatedSubtask, // Cập nhật subLevel mới
+          subLevel: updateSubTaskId, // Cập nhật subLevel mới
         }));
       }, [levelDetail]);
-
+      //Chỉnh sửa vùng đất
       const handleEditSubTask = (item: SubLevel) => {
         setisEditing(true);
         setselectedSubTask(item);
         setisVisible(true);
       }
-
+      //Lưu vào cơ sở dữ liệu 
       const saveLevelToFirestore = async (levels: Level) => {
             try {
                 const docRef = doc(db, "levels", levels.level.toString());
@@ -161,8 +175,8 @@ const AddNewTaskScreen = () => {
                         handleChangeValue('title', val);
                     }} 
                     value={taskName} 
-                    placeHolder='Vùng đất' 
-                    title='Tên vùng đất'
+                    placeHolder='Nhập level ở đây' 
+                    title='Tiêu đề'
                     allowClear 
                 />
                 {/* Chọn level và chọn nhạc */}
@@ -202,7 +216,7 @@ const AddNewTaskScreen = () => {
                 <TitleConponent text='Chọn hình nền' styles={{marginBottom: 10}}></TitleConponent>
                 {/* Chọn hình ảnh */}
                 <ImagePickerComponent onImagePicked={handleImagePicked}></ImagePickerComponent>
-                <TitleConponent text='Các Địa điểm' styles={{marginBottom: 10, marginTop: 10}}></TitleConponent>
+                <TitleConponent text='Các tiểu mục' styles={{marginBottom: 10, marginTop: 10}}></TitleConponent>
                 {/* Các địa điểm */}
                 <View>
                     {levelDetail.subLevel.map((item, index) => (
@@ -216,7 +230,7 @@ const AddNewTaskScreen = () => {
                     <SpaceComponent width={5}></SpaceComponent>
                     <TextComponent text='Thêm' size={20} flex={0} color='rgba(146, 235, 244, 0.8)'></TextComponent>
             </RowComponent>
-            <ButtonComponent text='Thử' onPress={() => saveLevelToFirestore(levelDetail)}></ButtonComponent>
+            <ButtonComponent text='Lưu' onPress={() => saveLevelToFirestore(levelDetail)}></ButtonComponent>
             </ScrollView>
             <Modal visible={isVisible} animationType='slide'>
                 <SubQuestComponent closeModal={() => setisVisible(false)} saveSubTask={handleSaveSubtask} subTaskSeason={selectedSubTask ? selectedSubTask.season : levelDetail.subLevel.length} isEditing={isEditing} SubTask={selectedSubTask}></SubQuestComponent>

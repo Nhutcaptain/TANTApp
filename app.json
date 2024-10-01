@@ -21,7 +21,8 @@
           "//": "Disables the microphone permission",
           "microphonePermission": false
         }
-      ]
+      ],
+      ["@react-native-google-signin/google-signin"]
     ],
     "userInterfaceStyle": "light",
     "splash": {
@@ -30,13 +31,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true
+      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

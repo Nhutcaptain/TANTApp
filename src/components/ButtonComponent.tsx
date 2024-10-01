@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
 import { StyleSheet, View, Text, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
+import RowComponent from './RowComponent';
+import SpaceComponent from './SpaceComponent';
 
 interface Props {
     backgroundColor?: string;
@@ -11,11 +13,12 @@ interface Props {
     textColor?: string,
     radius?: number,
     textSize?: number,
+    prefix?: ReactNode,
 }
 
 const ButtonComponent = (props: Props) => {
 
-    const {backgroundColor, onPress, width, height, styles, text, radius, textColor, textSize} = props;
+    const {backgroundColor, onPress, width, height, styles, text, radius, textColor, textSize, prefix} = props;
 
     const localStyle: StyleProp<ViewStyle> = [
         styles,
@@ -30,9 +33,11 @@ const ButtonComponent = (props: Props) => {
     ]
     return (
         <View>
-            <TouchableOpacity style={localStyle} onPress={onPress}>
+            <RowComponent styles={localStyle} onPress={onPress}>
+                {prefix && prefix}
+                {prefix && <SpaceComponent width={5}></SpaceComponent>}
                 <Text style={{color: textColor ? textColor : 'white', fontSize: textSize ? textSize : 15}}>{text}</Text>
-            </TouchableOpacity>
+            </RowComponent>
         </View>
     );
 }

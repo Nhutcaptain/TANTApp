@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleProp, ViewStyle, KeyboardAvoidingView, Platform } from 'react-native';
 import TitleConponent from './TitleConponent';
 import RowComponent from './RowComponent';
 import globalStyle from '../styles/globalStyle';
@@ -37,44 +37,43 @@ const InputComponent = (props: Props) => {
         right: 0,
     }
     return (
-        
-            <View style={{marginBottom: 16}}> 
-            {title && <TitleConponent text={title}></TitleConponent>}
-            <RowComponent styles={[globalStyle.inputContainer, 
-                    {marginTop: title ? 8 : 0, 
-                    minHeight: multible && numberOfLine ? 32 * numberOfLine : 32, 
-                    paddingVertical: 10, 
-                    paddingHorizontal: 10}, styles]}>
-                {prefix && prefix}
-                <View style={{flex: 1, paddingLeft: prefix ? 8 : 0, alignItems: align ?? 'flex-start'}}>
-                    <TextInput 
-                        style={[globalStyle.text,{paddingVertical: 1, textAlignVertical: multible ? 'top' : 'center', color: 'white', fontSize: fontSize ?? 16 , fontWeight: fontWeight ?? 'normal', textAlign: textalign ?? 'left',width: '100%' }]}
-                        placeholder={placeHolder ?? ''} 
-                        value={value} 
-                        editable={isEditable}
-                        onChangeText={val => onChange(val)}
-                        placeholderTextColor = {textColor ? textColor : '#676767'}
-                        multiline={multible}
-                        numberOfLines={numberOfLine}
-                        secureTextEntry={isPassword ? !showPass : false}
-                        autoCapitalize='none'
-                    ></TextInput>
-                </View>
-                {affix && affix}
-                {allowClear && value &&  (
-                    <TouchableOpacity onPress={() => onChange('')} >
-                        <AntDesign name='close' size={20} color={'white'} style={localStyles}></AntDesign>
-                    </TouchableOpacity>
-                )}
-                {
-                    isPassword && <TouchableOpacity onPress={() => setshowPass(!showPass)}>
-                        {showPass ? <EyeSlash size={20} color='white'></EyeSlash> : <Eye size={20} color='white'></Eye>}
-                    </TouchableOpacity>
-                }
-            </RowComponent>
-        </View>
-       
-        
+             <View style={{marginBottom: 16}}> 
+                {title && <TitleConponent text={title}></TitleConponent>}
+                    <RowComponent styles={[globalStyle.inputContainer, 
+                            {marginTop: title ? 8 : 0, 
+                            minHeight: multible && numberOfLine ? 32 * numberOfLine : 32, 
+                            paddingVertical: 10,
+                            justifyContent: 'center',
+                            alignItems: 'center', 
+                            paddingHorizontal: 10}, styles]}>
+                        {prefix && prefix}
+                        <View style={{flex: 1, paddingLeft: prefix ? 8 : 0, alignItems: align ?? 'flex-start'}}>
+                            <TextInput 
+                                style={[globalStyle.text,{paddingVertical: 1, textAlignVertical: multible ? 'top' : 'center', color: 'white', fontSize: fontSize ?? 16 , fontWeight: fontWeight ?? 'normal', textAlign: textalign ?? 'left',width: '100%' }]}
+                                placeholder={placeHolder ?? ''} 
+                                value={value} 
+                                editable={isEditable}
+                                onChangeText={val => onChange(val)}
+                                placeholderTextColor = {textColor ? textColor : '#676767'}
+                                multiline={multible}
+                                numberOfLines={numberOfLine}
+                                secureTextEntry={isPassword ? !showPass : false}
+                                autoCapitalize='none'
+                            ></TextInput>
+                        </View>
+                        {affix && affix}
+                        {allowClear && value &&  (
+                            <TouchableOpacity onPress={() => onChange('')} >
+                                <AntDesign name='close' size={20} color={'white'} style={localStyles}></AntDesign>
+                            </TouchableOpacity>
+                        )}
+                        {
+                            isPassword && <TouchableOpacity onPress={() => setshowPass(!showPass)}>
+                                {showPass ? <EyeSlash size={20} color='white'></EyeSlash> : <Eye size={20} color='white'></Eye>}
+                            </TouchableOpacity>
+                        }
+                </RowComponent>
+            </View> 
     );
 }
 
