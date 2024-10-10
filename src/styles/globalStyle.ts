@@ -40,7 +40,6 @@ const globalStyle = StyleSheet.create({
         marginBottom: 10,
     },
     selectQuestionType: {
-
         paddingVertical: 10, 
         borderWidth: 1, 
         borderColor: 'gray', 
@@ -52,7 +51,12 @@ const globalStyle = StyleSheet.create({
         width: '100%',
         height: '100%',
         position: 'absolute'
-    }
+    },
+    headerStyle: {
+        height: 180,
+        borderRadius: 15,
+        alignItems: 'flex-end',
+    },
 })
 
 export default globalStyle

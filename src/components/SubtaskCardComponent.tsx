@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import globalStyle from '../styles/globalStyle';
 import TextComponent from './TextComponent';
@@ -15,6 +15,11 @@ interface Props {
 
 const SubtaskCardComponent = (props: Props) => {
     const {subtask, isDelete} = props;
+
+    useEffect(() => {
+        console.log(subtask.subbackgroundImage);
+    },[])
+
     return (
         <View style={[globalStyle.card, {justifyContent: 'center'}]}>
             <RowComponent>

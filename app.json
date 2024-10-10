@@ -2,6 +2,7 @@
   "expo": {
     "name": "TeacherApp",
     "slug": "TeacherApp",
+    "scheme": "com.anonymous.TeacherApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -34,7 +35,7 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
-      "bundleIdentifier": "com.myapp.TeacherApp"
+      "bundleIdentifier": "com.anonymous.TeacherApp"
     },
     "android": {
       "adaptiveIcon": {
@@ -46,6 +47,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4bf65746-264b-4b36-b425-400c95e38a20"
+      }
     }
   }
 }

@@ -46,10 +46,8 @@ const ImagePickerComponent = (props: Props) => {
                 const snapShot = await uploadBytes(fileRef, blob);
                 if(result.assets[0].fileName) {
                     setfileName(result.assets[0].fileName);
-                    onImagePicked(result.assets[0].fileName);
+                    onImagePicked(result.assets[0].uri);
                 }
-                setimageUri(result.assets[0].uri) //Lưu ảnh
-
             }
         }catch(error) {
             console.log(error);

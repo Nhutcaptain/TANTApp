@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>225301072332-449kbd49anlddo2ustih025j5g2uclfm.apps.googleusercontent.com</string>
+	<string>225301072332-psg0hgph6a9hc9veg14tk5b9t7s7u0ak.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.225301072332-449kbd49anlddo2ustih025j5g2uclfm</string>
+	<string>com.googleusercontent.apps.225301072332-psg0hgph6a9hc9veg14tk5b9t7s7u0ak</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>225301072332-5ruiajuenbpjp181v0k728edb030vhpi.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAudD5H62gsmVchnD0C0SY-yzVD9cQYk7Q</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.myapp.TeacherApp</string>
+	<string>com.anonymous.TeacherApp</string>
 	<key>PROJECT_ID</key>
 	<string>quizapp-442a6</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:225301072332:ios:77a3045690c7bfbc14f569</string>
+	<string>1:225301072332:ios:2017679d622a104d14f569</string>
 </dict>
 </plist>

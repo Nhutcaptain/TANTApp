@@ -79,6 +79,7 @@ const SubQuestComponent = (props: Props) => {
     }
 
     const handleImagePicker = (imageUri: string) => {
+        console.log(imageUri);
         handleChangeValue('subbackgroundImage', imageUri);
     }
 
